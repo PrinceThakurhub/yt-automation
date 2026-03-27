@@ -1,0 +1,82 @@
+name: YouTube Shorts Daily Automation
+
+on:
+  schedule:
+    # Morning slot — 8:00 AM IST = 2:30 AM UTC
+    - cron: '30 2 * * *'
+    # Night slot — 9:00 PM IST = 3:30 PM UTC
+    - cron: '30 15 * * *'
+  
+  # Manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: 'Which slot to run?'
+        required: true
+        default: 'morning'
+        type: choice
+        options:
+          - morning
+          - night
+
+jobs:
+  generate-short:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install anthropic feedparser requests google-api-python-client google-auth-oauthlib
+
+      - name: Detect slot from schedule
+        id: slot
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "SLOT=${{ github.event.inputs.slot }}" >> $GITHUB_ENV
+          else
+            HOUR=$(date -u +%H)
+            if [ "$HOUR" = "02" ]; then
+              echo "SLOT=morning" >> $GITHUB_ENV
+            else
+              echo "SLOT=night" >> $GITHUB_ENV
+            fi
+          fi
+
+      - name: Run automation pipeline
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          ELEVENLABS_VOICE_ID: ${{ secrets.ELEVENLABS_VOICE_ID }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          SLOT: ${{ env.SLOT }}
+        run: python scripts/pipeline.py
+
+      - name: Upload output package as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: shorts-package-${{ env.SLOT }}-${{ github.run_id }}
+          path: output/
+          retention-days: 7   # Keep for 7 days to download + edit in CapCut
+
+      - name: Send Telegram notification
+        if: always()
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          STATUS="${{ job.status }}"
+          if [ "$STATUS" = "success" ]; then
+            MSG="✅ YouTube Short ready! Slot: ${{ env.SLOT }} | Download from GitHub Actions artifacts and edit in CapCut!"
+          else
+            MSG="❌ Pipeline failed for ${{ env.SLOT }} slot. Check GitHub Actions logs."
+          fi
+          curl -s -X POST "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" \
+            -d "chat_id=${TG_CHAT_ID}" \
+            -d "text=${MSG}"
