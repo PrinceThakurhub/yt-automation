@@ -33,6 +33,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
+        run: pip cache purge || true
         run: pip install google-generativeai feedparser requests google-api-python-client google-auth-oauthlib
 
       - name: Detect slot from schedule
