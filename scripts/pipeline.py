@@ -53,7 +53,7 @@ def pick_story(stories):
                                for i, s in enumerate(stories)])
     
     msg = claude.messages.create(
-        model="claude-opus-4-5",
+        model="claude-haiku-4-5-20251001",
         max_tokens=500,
         system="You are a viral YouTube Shorts strategist for a Finance & Trading channel targeting Indian youth. Pick stories with highest virality potential, especially those with a finance/economy angle or global power play.",
         messages=[{
