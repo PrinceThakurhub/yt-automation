@@ -85,7 +85,7 @@ Reply in this exact JSON format (no markdown):
 # ═══════════════════════════════════════════════════════════════════════════
 def generate_content(story):
     msg = claude.messages.create(
-        model="claude-opus-4-5",
+        model="claude-haiku-4-5-20251001",
         max_tokens=2000,
         system=f"""You are a viral YouTube Shorts content creator for: {CHANNEL_NICHE}.
 Style: Conspiracy angle, pure Hinglish, 'jo media nahi batata' vibe.
