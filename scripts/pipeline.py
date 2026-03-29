@@ -15,7 +15,7 @@ GEMINI_KEY = os.environ["GEMINI_API_KEY"]
 XI_KEY     = os.environ["ELEVENLABS_API_KEY"]
 VOICE_ID   = os.environ.get("ELEVENLABS_VOICE_ID", "pNInz6obpgDQGcFmaJgB")
 
-GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_KEY}"
+GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent?key={GEMINI_KEY}"
 
 RSS_FEEDS = [
     "https://feeds.bbci.co.uk/news/world/rss.xml",
