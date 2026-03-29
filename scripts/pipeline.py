@@ -5,6 +5,7 @@ Fetches news → Gemini generates script+SEO → ElevenLabs voice → YouTube up
 
 import os
 import json
+import time
 import requests
 import feedparser
 from datetime import datetime
