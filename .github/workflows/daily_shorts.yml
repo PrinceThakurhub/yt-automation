@@ -31,11 +31,12 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
       - name: Install dependencies
-        run: pip cache purge || true
-        run: pip install google-generativeai feedparser requests google-api-python-client google-auth-oauthlib
-
+        run: |
+          pip cache purge || true
+          pip uninstall anthropic -y || true
+          pip install google-generativeai feedparser requests google-api-python-client google-auth-oauthlib
+      
       - name: Detect slot from schedule
         id: slot
         run: |
