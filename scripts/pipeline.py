@@ -15,7 +15,7 @@ GEMINI_KEY = os.environ["GEMINI_API_KEY"]
 XI_KEY     = os.environ["ELEVENLABS_API_KEY"]
 VOICE_ID   = os.environ.get("ELEVENLABS_VOICE_ID", "pNInz6obpgDQGcFmaJgB")
 
-GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent?key={GEMINI_KEY}"
+GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key={GEMINI_KEY}"
 
 RSS_FEEDS = [
     "https://feeds.bbci.co.uk/news/world/rss.xml",
@@ -35,7 +35,7 @@ def ask_gemini(prompt):
         r = requests.post(GEMINI_URL, json=payload)
         if r.status_code == 429:
             print(f"Rate limit hit, waiting 30s... (attempt {attempt+1})")
-            time.sleep(30)
+            time.sleep(10)
             continue
         r.raise_for_status()
         return r.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
