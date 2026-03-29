@@ -25,15 +25,20 @@ RSS_FEEDS = [
 SLOT = os.environ.get("SLOT", "morning")
 CHANNEL_NICHE = "Finance & Trading - conspiracy/spicy Hinglish news shorts"
 
-
 def ask_gemini(prompt):
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {"temperature": 0.9, "maxOutputTokens": 2000}
     }
-    r = requests.post(GEMINI_URL, json=payload)
-    r.raise_for_status()
-    return r.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+    for attempt in range(3):
+        r = requests.post(GEMINI_URL, json=payload)
+        if r.status_code == 429:
+            print(f"Rate limit hit, waiting 30s... (attempt {attempt+1})")
+            time.sleep(30)
+            continue
+        r.raise_for_status()
+        return r.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+    raise Exception("Gemini rate limit — 3 attempts failed")
 
 
 def fetch_news(max_items=30):
